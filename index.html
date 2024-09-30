@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>संख्या पहेली (Number Puzzle)</title>
+
+    <style>
+
+        /* बॉडी और बैकग्राउंड स्टाइल्स */
+
+        body {
+
+            display: flex;
+
+            flex-direction: column;
+
+            align-items: center;
+
+            justify-content: center;
+
+            height: 100vh;
+
+            background: radial-gradient(circle, #2c3e50, #fd746c);
+
+            font-family: 'Arial', sans-serif;
+
+            color: #ffffff;
+
+            position: relative;
+
+            overflow: hidden;
+
+        }
+
+        /* हेडिंग स्टाइल */
+
+        h1 {
+
+            margin-bottom: 20px;
+
+            font-size: 3rem;
+
+            text-shadow: 0 0 10px #ffffff, 0 0 20px #ffffff, 0 0 30px #e74c3c;
+
+            animation: glow 1s infinite alternate;
+
+        }
+
+        /* ग्रिड स्टाइल */
+
+        .grid {
+
+            display: grid;
+
+            grid-template-columns: repeat(4, 100px);
+
+            gap: 10px;
+
+            padding: 20px;
+
+            background-color: rgba(255, 255, 255, 0.1);
+
+            border-radius: 20px;
+
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+
+            backdrop-filter: blur(5px);
+
+        }
+
+        /* सेल स्टाइल */
+
+        .cell {
+
+            width: 100px;
+
+            height: 100px;
+
+            display: flex;
+
+            justify-content: center;
+
+            align-items: center;
+
+            font-size: 36px;
+
+            background: linear-gradient(145deg, #3498db, #2980b9);
+
+            color: white;
+
+            border-radius: 15px;
+
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+
+            cursor: pointer;
+
+            transition: transform 0.2s, box-shadow 0.3s;
+
+        }
+
+        .cell:hover {
+
+            transform: scale(1.05);
+
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+        }
+
+        .empty {
+
+            background-color: transparent;
+
+            cursor: default;
+
+        }
+
+        /* बटन स्टाइल */
+
+        button {
+
+            margin-top: 20px;
+
+            padding: 12px 25px;
+
+            font-size: 18px;
+
+            color: #ffffff;
+
+            background-color: #e74c3c;
+
+            border: none;
+
+            border-radius: 10px;
+
+            cursor: pointer;
+
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+
+            transition: background-color 0.3s, box-shadow 0.3s;
+
+        }
+
+        button:hover {
+
+            background-color: #c0392b;
+
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+
+        }
+
+        /* फुटर स्टाइल */
+
+        footer {
+
+            margin-top: 20px;
+
+            font-size: 16px;
+
+            color: #ffffff;
+
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+
+        }
+
+        /* टाइमर और प्रोग्रेस बार स्टाइल */
+
+        .timer {
+
+            font-size: 22px;
+
+            margin-top: 10px;
+
+            color: #ffffff;
+
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+
+        }
+
+        .progress-bar-container {
+
+            width: 80%;
+
+            background-color: rgba(255, 255, 255, 0.1);
+
+            border-radius: 10px;
+
+            overflow: hidden;
+
+            height: 10px;
+
+            margin-top: 15px;
+
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+
+        }
+
+        .progress-bar {
+
+            height: 100%;
+
+            width: 0;
+
+            background-color: #e74c3c;
+
+            transition: width 1s linear;
+
+        }
+
+        /* कंफेटी एनिमेशन स्टाइल */
+
+        .confetti {
+
+            position: absolute;
+
+            top: 0;
+
+            width: 100%;
+
+            height: 100%;
+
+            pointer-events: none;
+
+            overflow: hidden;
+
+        }
+
+        .confetti-piece {
+
+            position: absolute;
+
+            width: 10px;
+
+            height: 10px;
+
+            background-color: #fff;
+
+            opacity: 0.7;
+
+            animation: confetti-fall 5s infinite;
+
+        }
+
+        @keyframes confetti-fall {
+
+            0% {
+
+                transform: translateY(-100%) rotate(0deg);
+
+                opacity: 0.7;
+
+            }
+
+            100% {
+
+                transform: translateY(100vh) rotate(360deg);
+
+                opacity: 0;
+
+            }
+
+        }
+
+        /* टेक्स्ट ग्लो एनिमेशन */
+
+        @keyframes glow {
+
+            from {
+
+                text-shadow: 0 0 5px #ffffff, 0 0 10px #ffffff, 0 0 15px #e74c3c;
+
+            }
+
+            to {
+
+                text-shadow: 0 0 10px #e74c3c, 0 0 20px #e74c3c, 0 0 30px #e74c3c;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <h1>संख्या पहेली (Number Puzzle)</h1>
+
+    <div class="grid" id="puzzle"></div>
+
+    <div class="progress-bar-container">
+
+        <div class="progress-bar" id="progress-bar"></div>
+
+    </div>
+
+    <div class="timer" id="timer">टाइमर: 02:00</div>
+
+    <button onclick="initializePuzzle()">नया खेल (New Game)</button>
+
+    <footer>© 2014 Malaramofficial</footer>
+
+    <div class="confetti" id="confetti"></div>
+
+    <audio id="game-start-sound" src="game-start-6104.mp3"></audio>
+
+    <audio id="achievement-sound" src="achievement-video-game-type-1-230515.mp3"></audio>
+
+    <audio id="game-over-sound" src="game-over-160612.mp3"></audio>
+
+    <audio id="game-over-arcade-sound" src="game-over-arcade-6435.mp3"></audio>
+
+    <script>
+
+        const puzzle = document.getElementById('puzzle');
+
+        const timerDisplay = document.getElementById('timer');
+
+        const progressBar = document.getElementById('progress-bar');
+
+        const confettiContainer = document.getElementById('confetti');
+
+        let numbers = [];
+
+        let emptyCellIndex = 15;
+
+        let timer;
+
+        let timeLeft = 120; // 2 मिनट = 120 सेकंड
+
+        // साउंड्स
+
+        const gameStartSound = document.getElementById('game-start-sound');
+
+        const achievementSound = document.getElementById('achievement-sound');
+
+        const gameOverSound = document.getElementById('game-over-sound');
+
+        const gameOverArcadeSound = document.getElementById('game-over-arcade-sound');
+
+        function initializePuzzle() {
+
+            numbers = [...Array(16).keys()].sort(() => Math.random() - 0.5);
+
+            emptyCellIndex = numbers.indexOf(0);
+
+            renderPuzzle();
+
+            startTimer();
+
+            resetConfetti();
+
+            playGameStartSound();
+
+        }
+
+        function renderPuzzle() {
+
+            puzzle.innerHTML = '';
+
+            numbers.forEach((num, index) => {
+
+                const cell = document.createElement('div');
+
+                cell.className = 'cell' + (num === 0 ? ' empty' : '');
+
+                cell.innerText = num === 0 ? '' : num;
+
+                cell.onclick = () => move(num, index);
+
+                puzzle.appendChild(cell);
+
+            });
+
+        }
+
+        function move(num, index) {
+
+            const emptyIndex = emptyCellIndex;
+
+            if (isAdjacent(index, emptyIndex)) {
+
+                [numbers[index], numbers[emptyIndex]] = [numbers[emptyIndex], numbers[index]];
+
+                emptyCellIndex = index;
+
+                renderPuzzle();
+
+                // साउंड इफेक्ट (बीप)
+
+                playBeepSound();
+
+                if (isSolved()) {
+
+                    clearInterval(timer);
+
+                    setTimeout(() => declareWinner(), 100);
+
+                }
+
+            }
+
+        }
+
+        function isAdjacent(index1, index2) {
+
+            const row1 = Math.floor(index1 / 4);
+
+            const col1 = index1 % 4;
+
+            const row2 = Math.floor(index2 / 4);
+
+            const col2 = index2 % 4;
+
+            return (Math.abs(row1 - row2) + Math.abs(col1 - col2) === 1);
+
+        }
+
+        function isSolved() {
+
+            return numbers.slice(0, 15).every((num, index) => num === index + 1);
+
+        }
+
+        function declareWinner() {
+
+            alert("बधाई हो! आपने खेल जीत लिया!");
+
+            playAchievementSound();
+
+            createConfetti();
+
+        }
+
+        function startTimer() {
+
+            timerDisplay.innerText = `टाइमर: 02:00`;
+
+            timeLeft = 120; // 2 मिनट
+
+            progressBar.style.width = '100%';
+
+            timer = setInterval(() => {
+
+                timeLeft--;
+
+                const minutes = Math.floor(timeLeft / 60);
+
+                const seconds = timeLeft % 60;
+
+                timerDisplay.innerText = `टाइमर: ${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+                const progressPercentage = (timeLeft / 120) * 100;
+
+                progressBar.style.width = `${progressPercentage}%`;
+
+                if (timeLeft <= 0) {
+
+                    clearInterval(timer);
+
+                    declareLoser();
+
+                }
+
+            }, 1000);
+
+        }
+
+        function declareLoser() {
+
+            alert("खेल खत्म हो गया! आप हार गए!");
+
+            playGameOverSound();
+
+            resetPuzzle();
+
+        }
+
+        function resetPuzzle() {
+
+            numbers = [...Array(16).keys()].sort(() => Math.random() - 0.5);
+
+            emptyCellIndex = numbers.indexOf(0);
+
+            renderPuzzle();
+
+            startTimer();
+
+        }
+
+        function createConfetti() {
+
+            for (let i = 0; i < 100; i++) {
+
+                const confettiPiece = document.createElement('div');
+
+                confettiPiece.className = 'confetti-piece';
+
+                confettiPiece.style.backgroundColor = getRandomColor();
+
+                confettiPiece.style.left = Math.random() * 100 + 'vw';
+
+                confettiPiece.style.animationDuration = (Math.random() * 3 + 2) + 's';
+
+                confettiPiece.style.opacity = Math.random();
+
+                confettiContainer.appendChild(confettiPiece);
+
+                setTimeout(() => {
+
+                    confettiPiece.remove();
+
+                }, 5000); // 5 सेकंड बाद कन्फेटी हटाना
+
+            }
+
+        }
+
+        function getRandomColor() {
+
+            const colors = ['#FFC700', '#FF3D00', '#D5006D', '#6200EA', '#00B8D4', '#76FF03'];
+
+            return colors[Math.floor(Math.random() * colors.length)];
+
+        }
+
+        function resetConfetti() {
+
+            confettiContainer.innerHTML = '';
+
+        }
+
+        function playBeepSound() {
+
+            const beepSound = new Audio('https://www.soundjay.com/button/beep-07.wav'); // साउंड फाइल के लिए लिंक
+
+            beepSound.play();
+
+        }
+
+        function playGameStartSound() {
+
+            gameStartSound.currentTime = 0; // Reset the sound
+
+            gameStartSound.play();
+
+        }
+
+        function playAchievementSound() {
+
+            achievementSound.currentTime = 0; // Reset the sound
+
+            achievementSound.play();
+
+        }
+
+        function playGameOverSound() {
+
+            gameOverSound.currentTime = 0; // Reset the sound
+
+            gameOverSound.play();
+
+        }
+
+        window.onload = initializePuzzle;
+
+    </script>
+
+</body>
+
+</html>
